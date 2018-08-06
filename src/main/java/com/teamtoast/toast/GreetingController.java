@@ -1,4 +1,4 @@
-package hello;
+package com.teamtoast.toast;
 
 import java.util.concurrent.atomic.AtomicLong;
 import org.springframework.web.bind.annotation.RequestMapping;
