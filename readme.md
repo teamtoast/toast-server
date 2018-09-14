@@ -46,6 +46,7 @@ INSERT INTO `categories` VALUES (3, NULL, '기술', NULL);
 }
 
 ```
+### 기타 환경 설정
 OAuth2를 서버 프로그램에서 사용 가능하도록 설정 파일을 작성합니다. Working Directory에서 src/main/resources/application.properties의 위치에 application.properties 파일로 작성합니다.
 
 * 현재 기능적으로 Git Hub, Facebook, Google, Kakao Talk 연동이 가능합니다.
