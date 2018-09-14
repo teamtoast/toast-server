@@ -35,7 +35,6 @@ INSERT INTO `categories` VALUES (3, NULL, '기술', NULL);
 * user: DB 사용자
 * password: DB 비밀번호
 
-
 예
 ```json
 {
@@ -46,22 +45,23 @@ INSERT INTO `categories` VALUES (3, NULL, '기술', NULL);
   "password": "1234"
 }
 
+```
 OAuth2를 서버 프로그램에서 사용 가능하도록 설정 파일을 작성합니다. Working Directory에서 src/main/resources/application.properties의 위치에 application.properties 파일로 작성합니다.
+
+* 현재 기능적으로 Git Hub, Facebook, Google, Kakao Talk 연동이 가능합니다.
+* 웹 애플리케이션을 실행하면 기본적으로 테스트 로그인 뷰가 나오도록 설정했습니다. (/login)
 
 예
 ```
-## 깃 허브 OAuth2
 spring.security.oauth2.client.registration.github.client-id=<user client-id>
 spring.security.oauth2.client.registration.github.client-secret=<user secret>
 
-## 페이스북 OAuth2
 spring.security.oauth2.client.registration.facebook.client-id=<user client-id>
 spring.security.oauth2.client.registration.facebook.client-secret=<user secret>
 
 spring.security.oauth2.client.registration.google.client-id=<user client-id>
 spring.security.oauth2.client.registration.google.client-secret=<user secret>
 
-## 카카오톡 OAuth2
 spring.security.oauth2.client.registration.kakao.client-id=<user client-id>
 spring.security.oauth2.client.registration.kakao.client-secret=<user secret>
 spring.security.oauth2.client.registration.kakao.authorization-grant-type=authorization_code
@@ -74,4 +74,3 @@ spring.security.oauth2.client.provider.kakao.authorization-uri=https://kauth.kak
 spring.security.oauth2.client.provider.kakao.user-info-uri=https://kapi.kakao.com/v2/user/me
 spring.security.oauth2.client.provider.kakao.user-name-attribute=id
 ```
-
