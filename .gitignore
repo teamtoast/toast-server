@@ -118,4 +118,8 @@ gradle-app.setting
 
 # End of https://www.gitignore.io/api/java,gradle,intellij
 
+# 우리 데이터베이스 파일
 database.json
+
+# 각종 Oauth2 관련 인증 키 파일
+src/main/resources/application.properties
