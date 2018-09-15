@@ -1,5 +1,6 @@
 package com.teamtoast.toast;
 
+import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,6 +15,7 @@ import java.util.LinkedList;
 public class CategoryController {
 
     @GetMapping("/categories")
+    @ApiOperation("카테고리 목록")
     public Category[] categories() {
         Category[] arr = new Category[]{};
         try {
