@@ -32,7 +32,9 @@ public class Database {
      * @throws SQLException
      */
     public static Connection newConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:mariadb://" + config.host + ":" + config.port + "/" + config.database,
+         //return DriverManager.getConnection("jdbc:mysql://" + config.host + ":" + config.port + "/" + config.database,
+           //     config.user, config.password);
+         return DriverManager.getConnection("jdbc:mariadb://" + config.host + ":" + config.port + "/" + config.database,
                 config.user, config.password);
     }
 
