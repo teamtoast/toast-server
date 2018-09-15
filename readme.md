@@ -1,7 +1,7 @@
 # Toast API Server
 ## 개발 작업 준비
 ### 소스 코드 다운로드
-우선 다음 명령어를 사용하여 저장소를 클론합니다. 
+우선 다음 명령어를 사용하여 저장소를 클론합니다.
 ```
 git clone https://github.com/teamtoast/toast-server.git
 ```
@@ -57,17 +57,21 @@ OAuth2를 서버 프로그램에서 사용 가능하도록 설정 파일을 작�
 ```
 spring.security.oauth2.client.registration.github.client-id=<user client-id>
 spring.security.oauth2.client.registration.github.client-secret=<user secret>
+## spring.security.oauth2.client.registration.github.redirect-uri-template=https://toast-ser.run.goorm.io/login/oauth2/code/{registrationId}
 
 spring.security.oauth2.client.registration.facebook.client-id=<user client-id>
 spring.security.oauth2.client.registration.facebook.client-secret=<user secret>
+## spring.security.oauth2.client.registration.facebook.redirect-uri-template=https://toast-ser.run.goorm.io/login/oauth2/code/{registrationId}
 
 spring.security.oauth2.client.registration.google.client-id=<user client-id>
 spring.security.oauth2.client.registration.google.client-secret=<user secret>
+## spring.security.oauth2.client.registration.google.redirect-uri-template=https://toast-ser.run.goorm.io/login/oauth2/code/{registrationId}
 
 spring.security.oauth2.client.registration.kakao.client-id=<user client-id>
 spring.security.oauth2.client.registration.kakao.client-secret=<user secret>
 spring.security.oauth2.client.registration.kakao.authorization-grant-type=authorization_code
 spring.security.oauth2.client.registration.kakao.redirect-uri-template={baseUrl}/login/oauth2/code/{registrationId}
+## spring.security.oauth2.client.registration.kakao.redirect-uri-template=https://toast-ser.run.goorm.io/login/oauth2/code/{registrationId}
 spring.security.oauth2.client.registration.kakao.scope=profile
 spring.security.oauth2.client.registration.kakao.client-name=Kakao
 spring.security.oauth2.client.registration.kakao.client-authentication-method=POST
