@@ -18,12 +18,20 @@ public class CategoryController {
     @ApiOperation("카테고리 목록")
     public Category[] categories() {
         Category[] arr = new Category[]{};
+        Connection connection = null;
         try {
-            Connection connection = Database.newConnection();
+            connection = Database.newConnection();
             ResultSet result = connection.prepareStatement("SELECT * FROM categories").executeQuery();
             arr = loadArray(result);
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if(connection != null)
+                    connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
 
         return arr;

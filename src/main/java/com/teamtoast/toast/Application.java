@@ -1,5 +1,7 @@
 package com.teamtoast.toast;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.teamtoast.toast.auth.UserController;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -10,13 +12,27 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+
 import static springfox.documentation.builders.PathSelectors.regex;
 
 @SpringBootApplication
 public class Application {
 
+    public static Config config;
+
     public static void main(String[] args) {
-        Database.Init();
+        loadConfig();
+        UserController.initAlgorithm();
         SpringApplication.run(Application.class, args);
+    }
+
+    private static void loadConfig() {
+        try {
+            config = new ObjectMapper().readValue(new FileInputStream("config.json"), Config.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
