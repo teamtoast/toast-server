@@ -36,12 +36,13 @@ CREATE TABLE `users` (
   KEY `users_level_IDX` (`level`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
 
-CREATE TABLE `kakao_accounts` (
+CREATE TABLE `sns_accounts` (
   `user` bigint(20) unsigned NOT NULL,
-  `kakao_id` bigint(20) NOT NULL,
+  `sns_id` varchar(128) NOT NULL,
+  `sns_type` varchar(128) NOT NULL,
   PRIMARY KEY (`user`),
-  UNIQUE KEY `kakao_accounts_UN` (`kakao_id`),
-  CONSTRAINT `kakao_accounts_users_FK` FOREIGN KEY (`user`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  UNIQUE KEY `sns_UN` (`sns_id`, `sns_type`),
+  CONSTRAINT `users_FK` FOREIGN KEY (`user`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 ```

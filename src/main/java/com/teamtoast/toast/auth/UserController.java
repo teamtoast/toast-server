@@ -10,10 +10,8 @@ import com.teamtoast.toast.auth.exceptions.AuthenticationException;
 import com.teamtoast.toast.auth.exceptions.ConflictException;
 import com.teamtoast.toast.auth.exceptions.PlatformException;
 import okhttp3.*;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,20 +28,9 @@ public class UserController {
     public @ResponseBody
     User.CreateResponse createUser(@RequestBody User.CreateRequest info) throws SQLException, AuthenticationException, PlatformException, ConflictException {
         long id = 0;
-
         Connection connection = null;
         try {
-            /*ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(json);
-
-            type = mapper.treeToValue(root.get("type"), User.AccountType.class);
-            String token = root.get("token").asText();
-            String nickname = root.get("nickname").asText();
-            String contact = root.get("contact").asText();
-            User.Gender gender = mapper.treeToValue(root.get("gender"), User.Gender.class);
-            int age = root.get("age").asInt();*/
-
-            long platformId = getPlatformId(info.token, info.type);
+            String platformId = getPlatformId(info.token, info.type);
             connection = Database.newConnection();
             connection.setAutoCommit(false);
 
@@ -75,16 +62,18 @@ public class UserController {
         return new User.CreateResponse(newToken(id, info.type));
     }
 
-    public long getPlatformId(String token, User.AccountType type) throws AuthenticationException, PlatformException {
+    public String getPlatformId(String token, User.AccountType type) throws AuthenticationException, PlatformException {
         switch (type) {
-        case KAKAO:
-            return getKakaoId(token);
+            case KAKAO:
+                return getKakaoId(token);
+            case FACEBOOK:
+                return getFacebookId(token);
         }
 
-        return 0;
+        return "";
     }
 
-    public long getKakaoId(String token) throws AuthenticationException, PlatformException {
+    public String getKakaoId(String token) throws AuthenticationException, PlatformException {
         try {
             OkHttpClient client = new OkHttpClient();
             Request request = new Request.Builder()
@@ -92,28 +81,42 @@ public class UserController {
                     .header("Authorization", "Bearer " + token)
                     .get()
                     .build();
-
             Response response = client.newCall(request).execute();
             String body = response.body().string();
             System.out.println(body);
             JsonNode root = new ObjectMapper().readTree(body);
-            return root.get("id").asLong();
+            return root.get("id").asText();
         } catch (IOException e) {
             e.printStackTrace();
             throw new PlatformException();
         }
     }
 
-    public void createAccountInfo(Connection connection, long id, long platformId, User.AccountType type) throws SQLException {
-        PreparedStatement stmt = null;
-        switch(type) {
-        case KAKAO:
-            stmt = connection.prepareStatement("INSERT INTO `kakao_accounts` (`user`, `kakao_id`) VALUES (?, ?)");
-            stmt.setLong(1, id);
-            stmt.setLong(2, platformId);
-            break;
+    public String getFacebookId(String token) throws AuthenticationException, PlatformException {
+        try {
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder()
+                    .url("https://graph.facebook.com/me?fields=id,email,gender,birthday,age_range&access_token=" + token)
+                    .get()
+                    .build();
+            Response response = client.newCall(request).execute();
+            String body = response.body().string();
+            System.out.println(body);
+            JsonNode root = new ObjectMapper().readTree(body);
+            return root.get("id").asText();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new PlatformException();
         }
+    }
 
+    public void createAccountInfo(Connection connection, long id, String platformId, User.AccountType type) throws SQLException {
+        PreparedStatement stmt = null;
+        String typeString = getType(type);
+        stmt = connection.prepareStatement("INSERT INTO `sns_accounts` (`user`, `sns_id`, `sns_type`) VALUES (?, ?, ?)");
+        stmt.setLong(1, id);
+        stmt.setString(2, platformId);
+        stmt.setString(3, typeString);
         stmt.execute();
     }
 
@@ -122,26 +125,30 @@ public class UserController {
     }
 
     public String newToken(long id, User.AccountType type) {
-        String typeString = "";
-        switch(type) {
-        case KAKAO:
-            typeString = "kakao";
-            break;
-        case FACEBOOK:
-            typeString = "facebook";
-            break;
-        case GOOGLE:
-            typeString = "google";
-            break;
-        case GITHUB:
-            typeString = "github";
-            break;
-        }
-
+        String typeString = getType(type);
         return JWT.create()
                 .withClaim("id", id)
                 .withClaim("type", typeString)
                 .sign(algorithm);
+    }
+
+    public String getType(User.AccountType type) {
+        String typeString = "";
+        switch (type) {
+            case KAKAO:
+                typeString = "kakao";
+                break;
+            case FACEBOOK:
+                typeString = "facebook";
+                break;
+            case GOOGLE:
+                typeString = "google";
+                break;
+            case GITHUB:
+                typeString = "github";
+                break;
+        }
+        return typeString;
     }
 
 }
