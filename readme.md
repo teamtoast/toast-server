@@ -1,13 +1,14 @@
 # Toast API Server
 ## 개발 작업 준비
 ### 소스 코드 다운로드
-우선 다음 명령어를 사용하여 저장소를 클론합니다. 
+우선 다음 명령어를 사용하여 저장소를 클론합니다.
 ```
 git clone https://github.com/teamtoast/toast-server.git
 ```
 
 ### 데이터베이스 설정
 테스트용 데이터베이스에 다음 SQL문을 실행하여 테이블을 생성합니다. 데이터베이스는 MariaDB 혹은 MySQL을 사용해야 합니다.
+(또한 데이터베이스의 내부 인코딩이 UTF-8으로 설정이 되어 있어야 합니다.)
 ```mysql
 CREATE TABLE `categories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
