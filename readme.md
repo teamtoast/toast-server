@@ -26,7 +26,7 @@ CREATE TABLE `users` (
   `nickname` varchar(20) NOT NULL,
   `contact` varchar(20) DEFAULT NULL,
   `gender` enum('male','female') DEFAULT NULL,
-  `age` int(11) NOT NULL,
+  `age` int(11) NOT NULL DEFAULT 0,
   `level` int(11) NOT NULL DEFAULT 0,
   `picture` varchar(100) DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
