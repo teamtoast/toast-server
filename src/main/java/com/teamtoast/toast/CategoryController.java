@@ -21,7 +21,7 @@ public class CategoryController {
         Connection connection = null;
         try {
             connection = Database.newConnection();
-            ResultSet result = connection.prepareStatement("SELECT * FROM categories").executeQuery();
+            ResultSet result = connection.prepareStatement("SELECT * FROM STUDY_CATEGORY").executeQuery();
             arr = loadArray(result);
         } catch (SQLException e) {
             e.printStackTrace();
