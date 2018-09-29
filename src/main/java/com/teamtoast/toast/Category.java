@@ -2,47 +2,38 @@ package com.teamtoast.toast;
 
 public class Category {
 
-    private int id;
-    private Integer parent;
-    private String name;
-    private String imagePath;
+    private int categoryID;
+    private Integer categoryParent;
+    private String categoryName;
 
-    public Category(int id, Integer parent, String name, String imagePath) {
-        this.id = id;
-        this.parent = parent;
-        this.name = name;
-        this.imagePath = imagePath;
+    public Category(int categoryID, Integer categoryParent, String categoryName) {
+        this.categoryID = categoryID;
+        this.categoryParent = categoryParent;
+        this.categoryName = categoryName;
     }
 
-    public int getId() {
-        return id;
+    public int getCategoryID() {
+        return categoryID;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setCategoryID(int categoryID) {
+        this.categoryID = categoryID;
     }
 
-    public Integer getParent() {
-        return parent;
+    public Integer getCategoryParent() {
+        return categoryParent;
     }
 
-    public void setParent(Integer parent) {
-        this.parent = parent;
+    public void setCategoryParent(Integer categoryParent) {
+        this.categoryParent = categoryParent;
     }
 
-    public String getName() {
-        return name;
+    public String getCategoryName() {
+        return categoryName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setCategoryName(String name) {
+        this.categoryName = categoryName;
     }
 
-    public String getImagePath() {
-        return imagePath;
-    }
-
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
-    }
 }

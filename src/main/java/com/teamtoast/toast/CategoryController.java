@@ -21,7 +21,7 @@ public class CategoryController {
         Connection connection = null;
         try {
             connection = Database.newConnection();
-            ResultSet result = connection.prepareStatement("SELECT * FROM categories").executeQuery();
+            ResultSet result = connection.prepareStatement("SELECT * FROM STUDY_CATEGORY WHERE categoryParent is not null ").executeQuery();
             arr = loadArray(result);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -39,10 +39,9 @@ public class CategoryController {
 
     public Category load(ResultSet result) throws SQLException {
         return new Category(
-                result.getInt("id"),
-                result.getObject("parent", Integer.class),
-                result.getString("name"),
-                result.getString("imagePath")
+                result.getInt("categoryID"),
+                result.getObject("categoryParent", Integer.class),
+                result.getString("categoryName")
         );
     }
 
