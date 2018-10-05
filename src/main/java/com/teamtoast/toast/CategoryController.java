@@ -1,10 +1,9 @@
 package com.teamtoast.toast;
 
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -51,6 +50,29 @@ public class CategoryController {
             categories.add(load(result));
         }
         return categories.toArray(new Category[0]);
+    }
+
+    @RequestMapping(value = "/category", method = RequestMethod.GET)
+    @ApiOperation(value = "카테고리 정보", notes = "categoryID에 해당하는 카테고리 정보를 리턴")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "categoryID", value = "카테고리 기본키", required = true, dataType = "string", paramType = "path", defaultValue = "")
+    })
+    public Category category() {
+//        {
+//            categroyID: ,
+//            categoryName: ,
+//            categoryParent 가 null이 아닐경우 부모 categoryName 까지 함께 리턴할것
+//        }
+        return null;
+    }
+
+    @RequestMapping(value = "/keyword", method = RequestMethod.GET)
+    @ApiOperation(value = "카테고리 관련 키워드", notes = "categoryID에 해당하는 카테고리관련 키워드리스트를 리턴")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "categoryID", value = "카테고리 기본키", required = true, dataType = "string", paramType = "path", defaultValue = "")
+    })
+    public void getKeywords() {
+//        study_category_keyword 테이블에서 가져오기 랜덤 5개
     }
 
 }
