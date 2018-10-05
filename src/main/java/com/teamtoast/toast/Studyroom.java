@@ -26,6 +26,7 @@ public class Studyroom {
         return studyroomID;
     }
 
+
     public String getStudyroomTitle() {
         return studyroomTitle;
     }
@@ -53,6 +54,7 @@ public class Studyroom {
     public void setStudyroomID(int studyroomID) {
         this.studyroomID = studyroomID;
     }
+
 
     public void setStudyroomTitle(String studyroomTitle) {
         this.studyroomTitle = studyroomTitle;

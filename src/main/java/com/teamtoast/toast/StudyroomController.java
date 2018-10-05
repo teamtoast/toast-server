@@ -15,7 +15,7 @@ public class StudyroomController {
 
     @ApiOperation(value = "스터디룸 목록", notes = "categoryID에 해당하는 스터디룸 리스트를 리턴")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "categoryID", value = "카테고리 고유키", required = true, dataType = "string", paramType = "path", defaultValue = ""),
+            @ApiImplicitParam(name = "categoryID", value = "카테고리 기본키", required = true, dataType = "string", paramType = "path", defaultValue = ""),
     })
     @RequestMapping(value = "/studyrooms/{categoryID}", produces = {"application/json"}, method = RequestMethod.GET)
     public Studyroom[] studyrooms(@PathVariable String categoryID) {
@@ -68,10 +68,50 @@ public class StudyroomController {
             @ApiImplicitParam(name = "studyroomTime", value = "최대시간", required = true, dataType = "string", paramType = "path", defaultValue = "30"),
             @ApiImplicitParam(name = "studyroomMaxUser", value = "인원제한", required = true, dataType = "string", paramType = "path", defaultValue = "4"),
     })
-    public void studyroom() {
+    public void makeStudyroom() {
         //studyroomDate 넣기
         //studyroomState: defaultValue = "pending"
     }
+
+    @RequestMapping(value = "/studyroom", method = RequestMethod.GET)
+    @ApiOperation(value = "스터디룸 정보")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "studyroomID", value = "스터디룸 기본키", required = true, dataType = "string", paramType = "path", defaultValue = "")
+    })
+    public void getStudyroom() {
+//        const studyRoomInfo = {
+//                studyroomID: 1,
+//                studyroomTitle: "취준생들 모여서 즐겁게 얘기해요!",
+//                studyroomDate: "",
+//                studyroomMinLevel: 1,
+//                studyroomTime: 1,
+//                studyroomMaxUser: 4,
+//                categoryID: 1,
+//                studyroomState: "pending"
+//        };
+    }
+
+    @RequestMapping(value = "/studyuser", method = RequestMethod.GET)
+    @ApiOperation(value = "스터디룸 유저 정보", notes = "studyroomID에 해당하는 스터디룸의 유저리스트를 리턴")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "studyroomID", value = "스터디룸 기본키", required = true, dataType = "string", paramType = "path", defaultValue = "")
+    })
+    public void getStudyroomUser() {
+//        studyRoomUserList = [{
+//            userID: "asdf@naver.com",
+//                    userNickname: "user1",
+//                    userProfilePath: " ",
+//                    userLevel: 15,
+//                    userState: 'wait'
+//        }, {
+//            userID: "asdf@naver.com",
+//                    userNickname: "user2",
+//                    userProfilePath: " ",
+//                    userLevel: 12,
+//                    userState: 'ready'
+//        }]
+    }
+
 
 }
 
