@@ -69,9 +69,6 @@ public class CategoryController {
             while (result.next()) {
                 category = load(result);
             }
-            System.out.println(category);
-
-
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {

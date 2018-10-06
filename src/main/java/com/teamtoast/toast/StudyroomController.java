@@ -74,23 +74,33 @@ public class StudyroomController {
         //studyroomState: defaultValue = "pending"
     }
 
-    @RequestMapping(value = "/studyroom", method = RequestMethod.GET)
+    @RequestMapping(value = "/studyroom/{studyroomID}", method = RequestMethod.GET)
     @ApiOperation(value = "스터디룸 정보")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "studyroomID", value = "스터디룸 기본키", required = true, dataType = "string", paramType = "path", defaultValue = "")
     })
-    public Studyroom getStudyroom() {
-//        const studyRoomInfo = {
-//                studyroomID: 1,
-//                studyroomTitle: "취준생들 모여서 즐겁게 얘기해요!",
-//                studyroomDate: "",
-//                studyroomMinLevel: 1,
-//                studyroomTime: 1,
-//                studyroomMaxUser: 4,
-//                categoryID: 1,
-//                studyroomState: "pending"
-//        };
-        return null;
+    public Studyroom getStudyroom(@PathVariable String studyroomID) {
+        Studyroom studyroom= null;
+        Connection connection = null;
+        try {
+            connection = Database.newConnection();
+            ResultSet result = connection.prepareStatement(
+                    "SELECT * FROM STUDYROOM WHERE studyroomID = " + studyroomID).executeQuery();
+            while (result.next()) {
+                studyroom = load(result);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (connection != null)
+                    connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return studyroom;
     }
 
     @RequestMapping(value = "/studyuser", method = RequestMethod.GET)
