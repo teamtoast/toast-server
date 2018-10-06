@@ -12,12 +12,9 @@ import java.io.IOException;
 
 @RestController
 public class FeedbackController {
-    @ApiOperation(value = "영어 문법 피드백", notes = "영어 문장을 넣으면 문법 점수와 바뀌어야 할 단어 부분이 반환됩니다. (추후에 삭제될 수 있는 API")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "text", value = "영어 문법을 확인할 텍스트", required = true, dataType = "string", paramType = "path", defaultValue = ""),
-    })
+    @ApiOperation(value = "영어 문법 피드백", notes = "영어 문장을 넣으면 문법 점수와 바뀌어야 할 단어 부분이 반환됩니다. (추후에 삭제될 수 있는 API)")
     @RequestMapping(value = "/feedback/grammarFeedback", produces = {"application/json"}, method = RequestMethod.POST)
-    public String feedback(@PathVariable String text) {
+    public String feedback(@RequestBody String text) {
         return getGrammerFeedback(text);
     }
 
