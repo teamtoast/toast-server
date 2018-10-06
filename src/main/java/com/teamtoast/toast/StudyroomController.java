@@ -43,6 +43,7 @@ public class StudyroomController {
     public Studyroom load(ResultSet result) throws SQLException {
         return new Studyroom(
                 result.getInt("studyroomID"),
+                result.getInt("categoryID"),
                 result.getString("studyroomTitle"),
                 result.getDate("studyroomDate"),
                 result.getInt("studyroomMinLevel"),
@@ -73,45 +74,42 @@ public class StudyroomController {
         //studyroomState: defaultValue = "pending"
     }
 
-    @RequestMapping(value = "/studyroom", method = RequestMethod.GET)
+    @RequestMapping(value = "/studyroom/{studyroomID}", method = RequestMethod.GET)
     @ApiOperation(value = "스터디룸 정보")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "studyroomID", value = "스터디룸 기본키", required = true, dataType = "string", paramType = "path", defaultValue = "")
     })
-    public void getStudyroom() {
-//        const studyRoomInfo = {
-//                studyroomID: 1,
-//                studyroomTitle: "취준생들 모여서 즐겁게 얘기해요!",
-//                studyroomDate: "",
-//                studyroomMinLevel: 1,
-//                studyroomTime: 1,
-//                studyroomMaxUser: 4,
-//                categoryID: 1,
-//                studyroomState: "pending"
-//        };
+    public Studyroom getStudyroom(@PathVariable String studyroomID) {
+        Studyroom studyroom= null;
+        Connection connection = null;
+        try {
+            connection = Database.newConnection();
+            ResultSet result = connection.prepareStatement(
+                    "SELECT * FROM STUDYROOM WHERE studyroomID = " + studyroomID).executeQuery();
+            while (result.next()) {
+                studyroom = load(result);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (connection != null)
+                    connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return studyroom;
     }
 
-    @RequestMapping(value = "/studyuser", method = RequestMethod.GET)
-    @ApiOperation(value = "스터디룸 유저 정보", notes = "studyroomID에 해당하는 스터디룸의 유저리스트를 리턴")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "studyroomID", value = "스터디룸 기본키", required = true, dataType = "string", paramType = "path", defaultValue = "")
-    })
-    public void getStudyroomUser() {
-//        studyRoomUserList = [{
-//            userID: "asdf@naver.com",
-//                    userNickname: "user1",
-//                    userProfilePath: " ",
-//                    userLevel: 15,
-//                    userState: 'wait'
-//        }, {
-//            userID: "asdf@naver.com",
-//                    userNickname: "user2",
-//                    userProfilePath: " ",
-//                    userLevel: 12,
-//                    userState: 'ready'
-//        }]
-    }
 
+    @RequestMapping(value = "/todaystudyroom", method = RequestMethod.GET)
+    @ApiOperation(value = "실시간 참여가능 스터디룸", notes = "홈화면의 실시간 참여가능 스터디룸")
+    public Studyroom[] todaystudyroom() {
+//        state가 'pending'인 스터디룸을 랜덤으로 3개뽑아 리턴
+        return null;
+    }
 
 }
 
