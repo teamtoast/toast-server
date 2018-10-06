@@ -9,11 +9,13 @@ import com.teamtoast.toast.Database;
 import com.teamtoast.toast.auth.exceptions.AuthenticationException;
 import com.teamtoast.toast.auth.exceptions.ConflictException;
 import com.teamtoast.toast.auth.exceptions.PlatformException;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import okhttp3.*;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.sql.*;
@@ -150,5 +152,42 @@ public class UserController {
         }
         return typeString;
     }
+
+    @RequestMapping(value = "/studyuser", method = RequestMethod.GET)
+    @ApiOperation(value = "스터디룸 유저 정보", notes = "studyroomID에 해당하는 스터디룸의 유저리스트")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "studyroomID", value = "스터디룸 기본키", required = true, dataType = "string", paramType = "path", defaultValue = "")
+    })
+    public void getStudyroomUser() {
+//        studyRoomUserList = [{
+//            userID: "asdf@naver.com",
+//                    userNickname: "user1",
+//                    userProfilePath: " ",
+//                    userLevel: 15,
+//                    userState: 'wait'
+//        }, {
+//            userID: "asdf@naver.com",
+//                    userNickname: "user2",
+//                    userProfilePath: " ",
+//                    userLevel: 12,
+//                    userState: 'ready'
+//        }]
+    }
+
+    @RequestMapping(value = "/userrank", method = RequestMethod.GET)
+    @ApiOperation(value = "유저 랭킹", notes = "유저 랭킹 리스트")
+    public void getUserRank() {
+//        [{
+//            profileImage: "",
+//            userNickname: "Anna",
+//            userLevel: 1
+//        },
+//        {
+//            profileImage: "",
+//            userNickname: "Anna",
+//            userLevel: 1
+//        }]
+    }
+
 
 }

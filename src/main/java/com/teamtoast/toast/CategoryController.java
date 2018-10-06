@@ -60,7 +60,7 @@ public class CategoryController {
             @ApiImplicitParam(name = "categoryID", value = "카테고리 기본키", required = true, dataType = "string", paramType = "path", defaultValue = "")
     })
     public Category category(@PathVariable String categoryID) {
-        Category category= null;
+        Category category = null;
         Connection connection = null;
         try {
             connection = Database.newConnection();
@@ -83,14 +83,46 @@ public class CategoryController {
         return category;
     }
 
-    @RequestMapping(value = "/keyword", method = RequestMethod.GET)
+    @RequestMapping(value = "/keyword/{categoryID}", method = RequestMethod.GET)
     @ApiOperation(value = "카테고리 관련 키워드", notes = "categoryID에 해당하는 카테고리 관련 키워드리스트")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "categoryID", value = "카테고리 기본키", required = true, dataType = "string", paramType = "path", defaultValue = "")
     })
-    public void getKeywords() {
-//        study_category_keyword 테이블에서 가져오기 랜덤 5개
+    public CategoryKeyword[] getKeywords(@PathVariable String categoryID) {
+
+        CategoryKeyword[] arr = new CategoryKeyword[]{};
+        Connection connection = null;
+        try {
+            connection = Database.newConnection();
+            ResultSet result = connection.prepareStatement(
+                    "SELECT * FROM STUDY_CATEGORY_KEYWORD WHERE categoryID = " + categoryID + " ORDER BY rand() LIMIT 4").executeQuery();
+
+            LinkedList<CategoryKeyword> keywords = new LinkedList<>();
+            while (result.next()) {
+                keywords.add(
+                        new CategoryKeyword(
+                                result.getInt("categoryID"),
+                                result.getString("keyword"),
+                                result.getString("mean")
+                                )
+                );
+            }
+            arr = keywords.toArray(new CategoryKeyword[0]);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (connection != null)
+                    connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return arr;
     }
+
 
     @RequestMapping(value = "/todaycategory", method = RequestMethod.GET)
     @ApiOperation(value = "오늘의 인기 카테고리", notes = "홈화면의 오늘의 인기 카테고리 3개")

@@ -103,26 +103,6 @@ public class StudyroomController {
         return studyroom;
     }
 
-    @RequestMapping(value = "/studyuser", method = RequestMethod.GET)
-    @ApiOperation(value = "스터디룸 유저 정보", notes = "studyroomID에 해당하는 스터디룸의 유저리스트를 리턴")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "studyroomID", value = "스터디룸 기본키", required = true, dataType = "string", paramType = "path", defaultValue = "")
-    })
-    public void getStudyroomUser() {
-//        studyRoomUserList = [{
-//            userID: "asdf@naver.com",
-//                    userNickname: "user1",
-//                    userProfilePath: " ",
-//                    userLevel: 15,
-//                    userState: 'wait'
-//        }, {
-//            userID: "asdf@naver.com",
-//                    userNickname: "user2",
-//                    userProfilePath: " ",
-//                    userLevel: 12,
-//                    userState: 'ready'
-//        }]
-    }
 
     @RequestMapping(value = "/todaystudyroom", method = RequestMethod.GET)
     @ApiOperation(value = "실시간 참여가능 스터디룸", notes = "홈화면의 실시간 참여가능 스터디룸")

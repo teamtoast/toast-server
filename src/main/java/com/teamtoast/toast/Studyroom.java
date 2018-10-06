@@ -4,14 +4,14 @@ import java.util.Date;
 
 public class Studyroom {
 
-    public int studyroomID;
-    public int categoryID;
-    public String studyroomTitle;
-    public Date studyroomDate;
-    public int studyroomMinLevel;
-    public int studyroomTime;
-    public int studyroomMaxUser;
-    public String studyroomState;
+    private int studyroomID;
+    private int categoryID;
+    private String studyroomTitle;
+    private Date studyroomDate;
+    private int studyroomMinLevel;
+    private int studyroomTime;
+    private int studyroomMaxUser;
+    private String studyroomState;
 
     public Studyroom(int studyroomID, int categoryID, String studyroomTitle, Date studyroomDate, int studyroomMinLevel, int studyroomTime, int studyroomMaxUser, String studyroomState) {
         this.studyroomID = studyroomID;
