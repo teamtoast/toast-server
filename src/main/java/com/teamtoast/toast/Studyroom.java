@@ -5,6 +5,7 @@ import java.util.Date;
 public class Studyroom {
 
     public int studyroomID;
+    public int categoryID;
     public String studyroomTitle;
     public Date studyroomDate;
     public int studyroomMinLevel;
@@ -12,8 +13,9 @@ public class Studyroom {
     public int studyroomMaxUser;
     public String studyroomState;
 
-    public Studyroom(int studyroomID, String studyroomTitle, Date studyroomDate, int studyroomMinLevel, int studyroomTime, int studyroomMaxUser, String studyroomState) {
+    public Studyroom(int studyroomID, int categoryID, String studyroomTitle, Date studyroomDate, int studyroomMinLevel, int studyroomTime, int studyroomMaxUser, String studyroomState) {
         this.studyroomID = studyroomID;
+        this.categoryID = categoryID;
         this.studyroomTitle = studyroomTitle;
         this.studyroomDate = studyroomDate;
         this.studyroomMinLevel = studyroomMinLevel;
@@ -26,6 +28,9 @@ public class Studyroom {
         return studyroomID;
     }
 
+    public int getCategoryID() {
+        return categoryID;
+    }
 
     public String getStudyroomTitle() {
         return studyroomTitle;
@@ -55,6 +60,9 @@ public class Studyroom {
         this.studyroomID = studyroomID;
     }
 
+    public void setCategoryID(int categoryID) {
+        this.categoryID = categoryID;
+    }
 
     public void setStudyroomTitle(String studyroomTitle) {
         this.studyroomTitle = studyroomTitle;

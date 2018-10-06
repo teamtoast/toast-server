@@ -43,6 +43,7 @@ public class StudyroomController {
     public Studyroom load(ResultSet result) throws SQLException {
         return new Studyroom(
                 result.getInt("studyroomID"),
+                result.getInt("categoryID"),
                 result.getString("studyroomTitle"),
                 result.getDate("studyroomDate"),
                 result.getInt("studyroomMinLevel"),
@@ -78,7 +79,7 @@ public class StudyroomController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "studyroomID", value = "스터디룸 기본키", required = true, dataType = "string", paramType = "path", defaultValue = "")
     })
-    public void getStudyroom() {
+    public Studyroom getStudyroom() {
 //        const studyRoomInfo = {
 //                studyroomID: 1,
 //                studyroomTitle: "취준생들 모여서 즐겁게 얘기해요!",
@@ -89,6 +90,7 @@ public class StudyroomController {
 //                categoryID: 1,
 //                studyroomState: "pending"
 //        };
+        return null;
     }
 
     @RequestMapping(value = "/studyuser", method = RequestMethod.GET)
@@ -112,6 +114,12 @@ public class StudyroomController {
 //        }]
     }
 
+    @RequestMapping(value = "/todaystudyroom", method = RequestMethod.GET)
+    @ApiOperation(value = "실시간 참여가능 스터디룸", notes = "홈화면의 실시간 참여가능 스터디룸")
+    public Studyroom[] todaystudyroom() {
+//        state가 'pending'인 스터디룸을 랜덤으로 3개뽑아 리턴
+        return null;
+    }
 
 }
 

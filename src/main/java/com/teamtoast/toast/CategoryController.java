@@ -20,13 +20,14 @@ public class CategoryController {
         Connection connection = null;
         try {
             connection = Database.newConnection();
-            ResultSet result = connection.prepareStatement("SELECT * FROM STUDY_CATEGORY WHERE categoryParent is not null ").executeQuery();
+            ResultSet result = connection.prepareStatement(
+                    "SELECT STUDY_CATEGORY.*, PARENT_CATEGORY.categoryName as parentName FROM STUDY_CATEGORY  JOIN STUDY_CATEGORY AS PARENT_CATEGORY  ON PARENT_CATEGORY.categoryID = STUDY_CATEGORY.categoryParent   WHERE STUDY_CATEGORY.categoryParent is not null").executeQuery();
             arr = loadArray(result);
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             try {
-                if(connection != null)
+                if (connection != null)
                     connection.close();
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -39,40 +40,65 @@ public class CategoryController {
     public Category load(ResultSet result) throws SQLException {
         return new Category(
                 result.getInt("categoryID"),
+                result.getString("categoryName"),
                 result.getObject("categoryParent", Integer.class),
-                result.getString("categoryName")
+                result.getString("parentName")
         );
     }
 
     public Category[] loadArray(ResultSet result) throws SQLException {
         LinkedList<Category> categories = new LinkedList<>();
-        while(result.next()) {
+        while (result.next()) {
             categories.add(load(result));
         }
         return categories.toArray(new Category[0]);
     }
 
-    @RequestMapping(value = "/category", method = RequestMethod.GET)
-    @ApiOperation(value = "카테고리 정보", notes = "categoryID에 해당하는 카테고리 정보를 리턴")
+    @RequestMapping(value = "/category/{categoryID}", method = RequestMethod.GET)
+    @ApiOperation(value = "카테고리 정보", notes = "categoryID에 해당하는 카테고리 정보")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "categoryID", value = "카테고리 기본키", required = true, dataType = "string", paramType = "path", defaultValue = "")
     })
-    public Category category() {
-//        {
-//            categroyID: ,
-//            categoryName: ,
-//            categoryParent 가 null이 아닐경우 부모 categoryName 까지 함께 리턴할것
-//        }
-        return null;
+    public Category category(@PathVariable String categoryID) {
+        Category category= null;
+        Connection connection = null;
+        try {
+            connection = Database.newConnection();
+            ResultSet result = connection.prepareStatement(
+                    "SELECT STUDY_CATEGORY.*, PARENT_CATEGORY.categoryName as parentName FROM STUDY_CATEGORY JOIN STUDY_CATEGORY AS PARENT_CATEGORY ON PARENT_CATEGORY.categoryID = STUDY_CATEGORY.categoryParent WHERE STUDY_CATEGORY.categoryID = " + categoryID).executeQuery();
+            while (result.next()) {
+                category = load(result);
+            }
+            System.out.println(category);
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (connection != null)
+                    connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return category;
     }
 
     @RequestMapping(value = "/keyword", method = RequestMethod.GET)
-    @ApiOperation(value = "카테고리 관련 키워드", notes = "categoryID에 해당하는 카테고리관련 키워드리스트를 리턴")
+    @ApiOperation(value = "카테고리 관련 키워드", notes = "categoryID에 해당하는 카테고리 관련 키워드리스트")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "categoryID", value = "카테고리 기본키", required = true, dataType = "string", paramType = "path", defaultValue = "")
     })
     public void getKeywords() {
 //        study_category_keyword 테이블에서 가져오기 랜덤 5개
+    }
+
+    @RequestMapping(value = "/todaycategory", method = RequestMethod.GET)
+    @ApiOperation(value = "오늘의 인기 카테고리", notes = "홈화면의 오늘의 인기 카테고리 3개")
+    public void todayCategory() {
+//        스터디룸 수가 많은 상위 3개 카테고리 리턴
     }
 
 }
