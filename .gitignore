@@ -124,3 +124,5 @@ config.json
 
 # 각종 Oauth2 관련 인증 키 파일
 src/main/resources/application.properties
+
+gcloud.json

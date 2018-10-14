@@ -42,4 +42,8 @@ public class Room {
         }
         return null;
     }
+
+    public Session[] getSessions() {
+        return sessions.toArray(new Session[0]);
+    }
 }
