@@ -3,6 +3,7 @@ package com.teamtoast.toast;
 import io.swagger.annotations.*;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Connection;
@@ -50,7 +51,7 @@ public class StudyroomController {
                 result.getInt("studyroomTime"),
                 result.getInt("studyroomMaxUser"),
                 result.getString("studyroomState")
-                );
+        );
     }
 
     public Studyroom[] loadArray(ResultSet result) throws SQLException {
@@ -61,17 +62,37 @@ public class StudyroomController {
         return studyrooms.toArray(new Studyroom[0]);
     }
 
+    //default value 수정해야함!
     @RequestMapping(value = "/studyroom", method = RequestMethod.POST)
     @ApiOperation(value = "스터디룸 생성")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "studyroomTitle", value = "방이름", required = true, dataType = "string", paramType = "path", defaultValue = ""),
-            @ApiImplicitParam(name = "studyroomMinLevel", value = "입장제한 레벨", required = true, dataType = "string", paramType = "path", defaultValue = "1"),
-            @ApiImplicitParam(name = "studyroomTime", value = "최대시간", required = true, dataType = "string", paramType = "path", defaultValue = "30"),
-            @ApiImplicitParam(name = "studyroomMaxUser", value = "인원제한", required = true, dataType = "string", paramType = "path", defaultValue = "4"),
-    })
-    public void makeStudyroom() {
-        //studyroomDate 넣기
-        //studyroomState: defaultValue = "pending"
+    public void makeStudyroom(@RequestParam(value = "categoryID",defaultValue = "6") int categoryID,
+                              @RequestParam(value = "studyroomTitle", defaultValue = "여행얘기 해요!") String studyroomTitle,
+                              @RequestParam(value = "studyroomMinLevel",defaultValue = "1") int studyroomMinLevel,
+                              @RequestParam(value = "studyroomTime", defaultValue = "45") int studyroomTime,
+                              @RequestParam(value = "studyroomMaxUser",defaultValue = "4") int studyroomMaxUser
+    ) {
+        Connection connection = null;
+        try {
+            connection = Database.newConnection();
+            try (PreparedStatement stmt = connection.prepareStatement("INSERT INTO STUDYROOM( `categoryID`,`studyroomTitle`,`studyroomDate`,`studyroomMinLevel`,`studyroomTime`,`studyroomMaxUser`,`studyroomState`)" +
+                    " VALUES(?,?,now(),?,?,?,'pending')")) {
+                stmt.setInt(1, categoryID);
+                stmt.setString(2, studyroomTitle);
+                stmt.setInt(3, studyroomMinLevel);
+                stmt.setInt(4, studyroomTime);
+                stmt.setInt(5, studyroomMaxUser);
+                stmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (connection != null)
+                    connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @RequestMapping(value = "/studyroom/{studyroomID}", method = RequestMethod.GET)
@@ -112,5 +133,3 @@ public class StudyroomController {
     }
 
 }
-
-

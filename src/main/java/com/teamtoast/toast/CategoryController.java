@@ -42,7 +42,8 @@ public class CategoryController {
                 result.getInt("categoryID"),
                 result.getString("categoryName"),
                 result.getObject("categoryParent", Integer.class),
-                result.getString("parentName")
+                result.getString("parentName"),
+                result.getString("categoryImage")
         );
     }
 
@@ -104,7 +105,7 @@ public class CategoryController {
                                 result.getInt("categoryID"),
                                 result.getString("keyword"),
                                 result.getString("mean")
-                                )
+                        )
                 );
             }
             arr = keywords.toArray(new CategoryKeyword[0]);
