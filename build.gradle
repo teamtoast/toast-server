@@ -39,4 +39,5 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket:2.0.5.RELEASE'
     implementation 'com.google.cloud:google-cloud-speech:0.67.0-beta'
     implementation 'com.google.cloud:google-cloud-dialogflow:0.67.0-alpha'
+    compile("org.springframework.boot:spring-boot-starter-mail")
 }
