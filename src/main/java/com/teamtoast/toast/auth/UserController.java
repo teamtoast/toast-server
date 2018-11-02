@@ -1,10 +1,8 @@
 package com.teamtoast.toast.auth;
 
-import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.teamtoast.toast.Application;
 import com.teamtoast.toast.auth.exceptions.AuthenticationException;
 import com.teamtoast.toast.auth.exceptions.ConflictException;
 import com.teamtoast.toast.auth.exceptions.PlatformException;
@@ -27,14 +25,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-    @Value("${token-secret}")
-    private String tokenSecret;
-    private Algorithm algorithm;
-
-    @PostConstruct
-    public void init() {
-        algorithm = Algorithm.HMAC256(tokenSecret);
-    }
+    @Autowired
+    private TokenService tokenService;
 
     @PostMapping(value = "/users", produces = "application/json")
     public @ResponseBody
@@ -47,7 +39,7 @@ public class UserController {
                 info.contact,
                 info.gender,
                 info.age);
-        return new User.CreateResponse(newToken(id, info.type));
+        return new User.CreateResponse(tokenService.newToken(id, info.type));
     }
 
     public String getPlatformId(String token, User.AccountType type) throws AuthenticationException, PlatformException {
@@ -95,33 +87,6 @@ public class UserController {
             e.printStackTrace();
             throw new PlatformException();
         }
-    }
-
-    public String newToken(long id, User.AccountType type) {
-        String typeString = getType(type);
-        return JWT.create()
-                .withClaim("id", id)
-                .withClaim("type", typeString)
-                .sign(algorithm);
-    }
-
-    public String getType(User.AccountType type) {
-        String typeString = "";
-        switch (type) {
-            case KAKAO:
-                typeString = "kakao";
-                break;
-            case FACEBOOK:
-                typeString = "facebook";
-                break;
-            case GOOGLE:
-                typeString = "google";
-                break;
-            case GITHUB:
-                typeString = "github";
-                break;
-        }
-        return typeString;
     }
 
     @RequestMapping(value = "/studyuser", method = RequestMethod.GET)

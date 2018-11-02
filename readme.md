@@ -11,18 +11,18 @@ git clone https://github.com/teamtoast/toast-server.git
 (또한 데이터베이스의 내부 인코딩이 UTF-8으로 설정이 되어 있어야 합니다.)
 ```mysql
 CREATE TABLE `categories` (
-  `categoryId` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `parent` int(11) DEFAULT NULL,
   `name` varchar(32) NOT NULL,
   `imagePath` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`categoryId`),
+  PRIMARY KEY (`id`),
   KEY `categories_name_IDX` (`name`) USING BTREE,
   KEY `categories_categories_FK` (`parent`),
-  CONSTRAINT `categories_categories_FK` FOREIGN KEY (`parent`) REFERENCES `categories` (`categoryId`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `categories_categories_FK` FOREIGN KEY (`parent`) REFERENCES `categories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE `users` (
-  `categoryId` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `nickname` varchar(20) NOT NULL,
   `contact` varchar(20) DEFAULT NULL,
   `gender` enum('male','female') DEFAULT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE `users` (
   `picture` varchar(100) DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `expired_at` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`categoryId`),
+  PRIMARY KEY (`id`),
   UNIQUE KEY `users_nickname` (`nickname`),
   KEY `users_level_IDX` (`level`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
@@ -42,7 +42,7 @@ CREATE TABLE `sns_accounts` (
   `sns_type` varchar(128) NOT NULL,
   PRIMARY KEY (`user`),
   UNIQUE KEY `sns_UN` (`sns_id`, `sns_type`),
-  CONSTRAINT `users_FK` FOREIGN KEY (`user`) REFERENCES `users` (`categoryId`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `users_FK` FOREIGN KEY (`user`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 ```
