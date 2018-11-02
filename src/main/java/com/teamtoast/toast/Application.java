@@ -20,19 +20,8 @@ import static springfox.documentation.builders.PathSelectors.regex;
 @SpringBootApplication
 public class Application {
 
-    public static Config config;
-
     public static void main(String[] args) {
-        loadConfig();
-        UserController.initAlgorithm();
         SpringApplication.run(Application.class, args);
     }
 
-    private static void loadConfig() {
-        try {
-            config = new ObjectMapper().readValue(new FileInputStream("config.json"), Config.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }

@@ -40,4 +40,7 @@ dependencies {
     implementation 'com.google.cloud:google-cloud-speech:0.67.0-beta'
     implementation 'com.google.cloud:google-cloud-dialogflow:0.67.0-alpha'
     compile("org.springframework.boot:spring-boot-starter-mail")
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+    implementation "org.springframework.boot:spring-boot-starter"
+    implementation "javax.xml.bind:jaxb-api"
 }
