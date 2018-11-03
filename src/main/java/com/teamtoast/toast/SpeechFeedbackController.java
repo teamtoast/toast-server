@@ -1,5 +1,8 @@
 package com.teamtoast.toast;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,6 +33,17 @@ public class SpeechFeedbackController {
             fos.write(file.getBytes());
             fos.close();
             ret = getAPIResult(text, fileName);
+            // 각 단어마다 정확도를 체크하므로 2차원 배열을 사용합니다.
+            ArrayNode result = new ObjectMapper().createArrayNode();
+            ArrayNode root = (ArrayNode) new ObjectMapper().readTree(ret);
+            for(int i = 0; i < root.size(); i++) {
+                // 개별 단어에 접근하여 단어별 정확도를 뽑아 삽입합니다.
+                ObjectNode obj = new ObjectMapper().createObjectNode();
+                obj.put("word", root.get(i).get("word"));
+                obj.put("accuracy", root.get(i).get("quality_score"));
+                result.add(obj);
+            }
+            return result.toString();
         } catch (IOException e) {
             e.printStackTrace();
         }
