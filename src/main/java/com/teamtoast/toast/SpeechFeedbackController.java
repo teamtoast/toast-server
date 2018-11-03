@@ -1,5 +1,6 @@
 package com.teamtoast.toast;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -33,16 +34,40 @@ public class SpeechFeedbackController {
             fos.write(file.getBytes());
             fos.close();
             ret = getAPIResult(text, fileName);
+            // 최종 결과 반환 객체입니다.
+            ObjectNode result = new ObjectMapper().createObjectNode();
             // 각 단어마다 정확도를 체크하므로 2차원 배열을 사용합니다.
-            ArrayNode result = new ObjectMapper().createArrayNode();
+            ArrayNode wordsArray = new ObjectMapper().createArrayNode();
             ArrayNode root = (ArrayNode) new ObjectMapper().readTree(ret);
+            double sum = 0;
             for(int i = 0; i < root.size(); i++) {
                 // 개별 단어에 접근하여 단어별 정확도를 뽑아 삽입합니다.
                 ObjectNode obj = new ObjectMapper().createObjectNode();
                 obj.put("word", root.get(i).get("word"));
                 obj.put("accuracy", root.get(i).get("quality_score"));
-                result.add(obj);
+                sum += Double.parseDouble(root.get(i).get("quality_score").toString());
+                wordsArray.add(obj);
             }
+            result.put("words", wordsArray);
+            ObjectNode totalWord = new ObjectMapper().createObjectNode();
+            result.put("totalWord", root.size());
+            ObjectNode totalScore = new ObjectMapper().createObjectNode();
+            result.put("totalScore", sum / root.size());
+            String judgement = "Bad";
+            if(sum / root.size() >= 85) {
+                judgement = "Excellent";
+            }
+            else if(sum / root.size() >= 78) {
+                judgement = "Great";
+            }
+            else if(sum / root.size() >= 70) {
+                judgement = "Good";
+            }
+            else if(sum / root.size() >= 60) {
+                judgement = "So So";
+            }
+            ObjectNode totalJudgement = new ObjectMapper().createObjectNode();
+            result.put("totalJudgement", judgement);
             return result.toString();
         } catch (IOException e) {
             e.printStackTrace();
