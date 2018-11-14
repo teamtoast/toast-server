@@ -24,4 +24,8 @@ public class UserService {
         return user.getId();
     }
 
+    public User getUser(long id) {
+        return repository.findById(id).get();
+    }
+
 }
