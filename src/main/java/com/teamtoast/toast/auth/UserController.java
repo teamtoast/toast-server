@@ -1,8 +1,11 @@
 package com.teamtoast.toast.auth;
 
-import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.teamtoast.toast.auth.bodys.CreateUserBySNSRequest;
+import com.teamtoast.toast.auth.bodys.CreateUserRequest;
+import com.teamtoast.toast.auth.bodys.LoginRequest;
+import com.teamtoast.toast.auth.bodys.TokenResponse;
 import com.teamtoast.toast.auth.exceptions.AuthenticationException;
 import com.teamtoast.toast.auth.exceptions.ConflictException;
 import com.teamtoast.toast.auth.exceptions.PlatformException;
@@ -11,12 +14,10 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.sql.*;
 
@@ -30,7 +31,20 @@ public class UserController {
 
     @PostMapping(value = "/users", produces = "application/json")
     public @ResponseBody
-    User.CreateResponse createUser(@RequestBody User.CreateRequest info)
+    TokenResponse createToastUser(@RequestBody CreateUserRequest info)
+            throws SQLException, AuthenticationException, PlatformException, ConflictException {
+
+        long id = userService.createUser(info.email, info.password,
+                info.nickname,
+                info.contact,
+                info.gender,
+                info.age);
+        return new TokenResponse(tokenService.newToken(id, User.AccountType.TOAST));
+    }
+
+    @PostMapping(value = "/users/sns", produces = "application/json")
+    public @ResponseBody
+    TokenResponse createSNSUser(@RequestBody CreateUserBySNSRequest info)
             throws SQLException, AuthenticationException, PlatformException, ConflictException {
 
         long id = userService.createUser(info.type,
@@ -39,7 +53,25 @@ public class UserController {
                 info.contact,
                 info.gender,
                 info.age);
-        return new User.CreateResponse(tokenService.newToken(id, info.type));
+        return new TokenResponse(tokenService.newToken(id, info.type));
+    }
+
+    @GetMapping(value = "/me", produces = "application/json")
+    public @ResponseBody User getMe(@RequestHeader("Authorization") String authorization) throws AuthenticationException {
+        if(authorization != null && authorization.length() > 7 && authorization.substring(0, 7).equals("Bearer ")) {
+            
+        }
+
+        throw new AuthenticationException();
+    }
+
+    @PostMapping(value = "/token", produces = "application/json")
+    public @ResponseBody TokenResponse createToken(@RequestBody LoginRequest params) throws AuthenticationException {
+        return new TokenResponse(tokenService.newToken(
+                userService.getUserByIdAndPassword(
+                        params.getEmail(),
+                        params.getPassword()),
+                User.AccountType.TOAST));
     }
 
     public String getPlatformId(String token, User.AccountType type) throws AuthenticationException, PlatformException {
@@ -64,7 +96,7 @@ public class UserController {
             Response response = client.newCall(request).execute();
             String body = response.body().string();
             JsonNode root = new ObjectMapper().readTree(body);
-            return root.get("id").asText();
+            return root.get("email").asText();
         } catch (IOException e) {
             e.printStackTrace();
             throw new PlatformException();
@@ -75,14 +107,14 @@ public class UserController {
         try {
             OkHttpClient client = new OkHttpClient();
             Request request = new Request.Builder()
-                    .url("https://graph.facebook.com/me?fields=id,email,gender,birthday,age_range&access_token=" + token)
+                    .url("https://graph.facebook.com/me?fields=email,email,gender,birthday,age_range&access_token=" + token)
                     .get()
                     .build();
             Response response = client.newCall(request).execute();
             String body = response.body().string();
             System.out.println(body);
             JsonNode root = new ObjectMapper().readTree(body);
-            return root.get("id").asText();
+            return root.get("email").asText();
         } catch (IOException e) {
             e.printStackTrace();
             throw new PlatformException();

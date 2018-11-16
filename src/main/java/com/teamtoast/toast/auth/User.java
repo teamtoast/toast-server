@@ -13,30 +13,16 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "userId", updatable = false, insertable = false)
-    @JsonProperty("userId")
+    @Column(updatable = false, insertable = false)
     private long id;
-    @Column(name = "userNickname")
-    @JsonProperty("userNickname")
     private String nickname;
-    @Column(name = "userContact")
-    @JsonProperty("userContact")
     private String contact;
-    @Column(name = "userGender")
     @Enumerated(EnumType.STRING)
-    @JsonProperty("userGender")
     private Gender gender;
-    @Column(name = "userAge")
-    @JsonProperty("userAge")
     private int age;
-    @Column(name = "userLevel")
-    @JsonProperty("userLevel")
     private int level = 0;
-    @Column(name = "userPicture")
-    @JsonProperty("userPicture")
     private String picture;
-    @Column(name = "userCreatedAt", insertable = false, updatable = false)
-    @JsonProperty("userCreatedAt")
+    @Column(insertable = false, updatable = false)
     private Date createdAt;
 
     public User() {
@@ -114,6 +100,8 @@ public class User {
     }
 
     public enum AccountType {
+        @JsonProperty("toast")
+        TOAST,
         @JsonProperty("kakao")
         KAKAO,
         @JsonProperty("facebook")
@@ -131,25 +119,4 @@ public class User {
         FEMALE
     }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class CreateRequest {
-
-        public AccountType type;
-        public String token;
-        public String nickname;
-        public String contact;
-        public Gender gender;
-        public int age;
-
     }
-
-    public static class CreateResponse {
-
-        public String token;
-
-        public CreateResponse(String token) {
-            this.token = token;
-        }
-    }
-
-}

@@ -50,13 +50,13 @@ public class Session {
 
     public void welcome(Session target) {
         ObjectNode node = new ObjectMapper().getNodeFactory().objectNode();
-        node.put("id", target.id);
+        node.put("email", target.id);
         send("join", node);
     }
 
     public void noticeLeave(Session target) {
         ObjectNode node = new ObjectMapper().getNodeFactory().objectNode();
-        node.put("id", target.id);
+        node.put("email", target.id);
         send("leave", node);
     }
 
@@ -78,7 +78,7 @@ public class Session {
 
     public void sendInfo() {
         ObjectNode node = new ObjectMapper().createObjectNode();
-        node.put("id", id);
+        node.put("email", id);
         send("info", node);
     }
 

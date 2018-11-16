@@ -28,7 +28,7 @@ public class TokenService {
 
     public String newToken(long id, User.AccountType type) {
         return JWT.create()
-                .withClaim("id", id)
+                .withClaim("email", id)
                 .withClaim("type", type.toString().toLowerCase())
                 .sign(algorithm);
     }
@@ -36,7 +36,7 @@ public class TokenService {
     public User verifyToken(String token) {
         JWTVerifier verifier = JWT.require(algorithm).build();
         DecodedJWT jwt = verifier.verify(token);
-        return userService.getUser(jwt.getClaim("id").asLong());
+        return userService.getUser(jwt.getClaim("email").asLong());
     }
 
 }
