@@ -51,7 +51,7 @@ public class SpeechFeedbackController {
                 if(!temp.isObject()) continue;
                 ObjectNode obj = (ObjectNode) temp;
                 String text = obj.get("text").toString();
-                text = text.substring(1, text.length() - 2);
+                text = text.substring(1, text.length() - 1);
                 double confidence = Double.parseDouble(obj.get("confidence").toString());
                 // 음성 인식 Confidence 값이 80% 이상인 경우만 허용 (80% 미만인 경우 음성 오류 있을 가능성이 높음.)
                 // 아예 Path List에서 제거해버리기.
@@ -74,10 +74,12 @@ public class SpeechFeedbackController {
         ArrayNode grammarFeedback = new ObjectMapper().createArrayNode();
         int grammarFaultCount = 0;
         int spellingFaultCount = 0;
+        int totalWordCount = 0;
         // 먼저 문법 검사를 할 전체 문장을 삽입합니다.
         for(int i = 0; i < results.size(); i++) {
             ObjectNode text = new ObjectMapper().createObjectNode();
-            text.put("Expression", results.get(i));
+            text.put("expression", results.get(i));
+            totalWordCount += (results.get(i).split(" ") == null)? 0 : results.get(i).split(" ").length;
             String errorCheck = feedbackController.getGrammerFeedback(results.get(i));
             try {
                 JsonNode errorNode = new ObjectMapper().readTree(errorCheck);
@@ -85,17 +87,20 @@ public class SpeechFeedbackController {
                     if(errorNode.get("result") != null) {
                         String error = errorNode.get("errors").toString();
                         ArrayNode array = (ArrayNode) new ObjectMapper().readTree(error);
-                        if(array.size() > 0) ((ObjectNode) array.get(0)).remove("id"); // ID 부분 지우기 (필요 없음)
                         // 문법 오류가 있는 경우에만 Grammar Feedback 부분에 값이 들어갑니다.
                         if(array.get(0) != null) {
-                            text.put("Grammar Feedback", array.get(0));
-                            String type = array.get(0).get("type").toString();
-                            if(type.equals("grammar")) {
-                                grammarFaultCount++;
+                            for(int j = 0; j < array.size(); j++)
+                            {
+                                ((ObjectNode) array.get(j)).remove("id"); // ID 부분 지우기 (필요 없음)
+                                String type = array.get(j).get("type").toString();
+                                if(type.equals("\"grammar\"")) {
+                                    grammarFaultCount++;
+                                }
+                                else if(type.equals("\"spelling\"")) {
+                                    spellingFaultCount++;
+                                }
                             }
-                            else if(type.equals("spelling")) {
-                                spellingFaultCount++;
-                            }
+                            text.put("grammarFeedback", array);
                         }
                     }
                 }
@@ -104,17 +109,17 @@ public class SpeechFeedbackController {
             }
             grammarFeedback.add(text);
         }
-        res.put("All Grammar Feedbacks", grammarFeedback);
+        res.put("grammarFeedbacks", grammarFeedback);
         ArrayList<String> poorWordList = new ArrayList<>();
         int totalAccuracy = 0;
         int wordCount = 0;
         double proScore = 0.0;
         int proScoreCount = 0;
         try {
-            for(int i = 0; i < res.get("All Grammar Feedbacks").size(); i++) {
+            for(int i = 0; i < res.get("grammarFeedbacks").size(); i++) {
                 // 문법적으로 오류가 없는 문장에 한해서 발음 피드백 진행
-                if(res.get("All Grammar Feedbacks").get(i).get("Grammar Feedback") == null) {
-                    String text = res.get("All Grammar Feedbacks").get(i).get("Expression").toString();
+                if(res.get("grammarFeedbacks").get(i).get("grammarFeedback") == null) {
+                    String text = res.get("grammarFeedbacks").get(i).get("expression").toString();
                     String mediaPath = getAllPath.get(i);
                     String pronunciationFeedback = getFeedbackFromFile(text, mediaPath);
                     ArrayNode nowFeedback = (ArrayNode) (new ObjectMapper().readTree(pronunciationFeedback).get("words"));
@@ -139,12 +144,66 @@ public class SpeechFeedbackController {
         for(int i = 0; i < poorWordList.size(); i++) {
             pronunciations.add(poorWordList.get(i).substring(1, poorWordList.get(i).length() - 1));
         }
-        res.put("Poor Pronunciation", pronunciations);
-        res.put("Pronunciation Score", proScore / proScoreCount);
-        res.put("Grammar Score", ((double) results.size() - grammarFaultCount) * 100 / results.size());
-        res.put("Word Score", ((double) results.size() - spellingFaultCount) * 100 / results.size());
-        res.put("Confidence Score", (totalConfidence * 100) / confidenceCount);
+        ArrayNode recommendSentences = new ObjectMapper().createArrayNode();
+        int target = 3;
+        for(int i = 0; i < results.size() && i < target; i++) {
+            ObjectNode obj =  new ObjectMapper().createObjectNode();
+            obj.put("question", results.get(i));
+            String answer = getAnswer(results.get(i));
+            if(answer.equals("")) {
+                target++;
+                continue;
+            }
+            obj.put("answer", answer);
+            recommendSentences.add(obj);
+        }
+        res.put("recommendSentences", recommendSentences);
+        res.put("poorPronunciation", pronunciations);
+        double pronunciationScoreDouble = proScore / proScoreCount;
+        double grammarScoreDouble = ((double) totalWordCount - grammarFaultCount) * 100 / totalWordCount;
+        double wordScoreDouble = ((double) totalWordCount - spellingFaultCount) * 100 / totalWordCount;
+        double expressionScore = (totalConfidence * 100) / confidenceCount;
+        res.put("pronunciationScore", getScore(pronunciationScoreDouble));
+        res.put("grammarScore", getScore(grammarScoreDouble));
+        res.put("wordScore", getScore(wordScoreDouble));
+        res.put("expressionScore", getScore(expressionScore));
         return res.toString();
+    }
+
+    public String getScore(double input) {
+        String res = "Bad";
+        if(input >= 90) {
+            res = "Excellent";
+        }
+        else if(input >= 82) {
+            res = "Great";
+        }
+        else if(input >= 75) {
+            res = "Good";
+        }
+        else if(input >= 70) {
+            res = "intermediate";
+        }
+        return res;
+    }
+
+    public String getAnswer(String text) {
+        String result = "";
+        try {
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder()
+                    .header("Authorization", "Bearer e3dd27f78a324a58bce120462c51171b") // 액세스 토큰 하드코딩 (죄송합니다.)
+                    .url("https://api.dialogflow.com/v1/query?query=" + text + "&sessionId=796&lang=ko")
+                    .get()
+                    .build();
+            Response response = client.newCall(request).execute();
+            String body = response.body().string();
+            ObjectNode root = (ObjectNode) new ObjectMapper().readTree(body);
+            return root.get("result").get("speech").textValue();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     public String getFeedbackFromFile(String text, String path) {
