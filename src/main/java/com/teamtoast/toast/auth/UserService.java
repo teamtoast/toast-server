@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
 import java.io.UnsupportedEncodingException;
+import java.util.Optional;
 
 @Repository
 public class UserService {
@@ -58,6 +59,15 @@ public class UserService {
         }
 
         return 0;
+    }
+
+    public User getUserBySNSIdAndSNSType(String snsId, User.AccountType snsType) throws AuthenticationException {
+        Optional<SNSAccount> account = snsRepository.findBySnsIdAndSnsType(snsId, snsType);
+        if(account.isPresent()) {
+            return repository.findById(account.get().getId()).get();
+        }
+
+        throw new AuthenticationException();
     }
 
 }
