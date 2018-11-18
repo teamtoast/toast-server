@@ -43,8 +43,11 @@ public class CategoryController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "categoryID", value = "카테고리 기본키", required = true, dataType = "string", paramType = "path", defaultValue = "")
     })
-    public Category category(@PathVariable int categoryID) {
-        return repository.findById(categoryID).get();
+    public CategoryParent category(@PathVariable int categoryID) {
+        String query = "SELECT C.categoryId, C.categoryParent, C.categoryName, P.categoryName as parentName, C.categoryImage FROM categories as C, categories as P WHERE C.categoryParent = P.categoryId AND C.categoryParent IS NOT NULL AND C.categoryId = " + categoryID;
+        List<CategoryParent> list = jdbc.query(query, new BeanPropertyRowMapper<>(CategoryParent.class));
+        if(list == null || list.size() == 0) return null;
+        else return list.get(0);
     }
 
     @RequestMapping(value = "/categories/{categoryId}/keywords", method = RequestMethod.GET)
