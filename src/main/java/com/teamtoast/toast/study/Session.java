@@ -9,14 +9,19 @@ import com.google.protobuf.ByteString;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 
 public class Session {
+
+    @Value("speech-data-path")
+    private String savePath; // 음성 파일 및 .json 파일 저장 위치: 나동빈 수정(2018-11-18)
 
     private int id;
     private Room room;
@@ -124,6 +129,7 @@ public class Session {
                 break;
 
             case "say":
+                // recognizeVoice() 함수 내에서 음성 파일 및 .json 파일 저장하는 기능 추가 : 나동빈 수정(2018-11-18)
                 String script = recognizeVoice(data.asText());
                 sendScript(script);
                 String recommend = getRecommend(script);
@@ -132,6 +138,11 @@ public class Session {
         }
     }
 
+    /*
+        -- 나동빈 수정(2018-11-18) --
+        디버깅을 못 해서 정상 작동하는지는 확인 못 함.
+     */
+    private int fileCount = 1;
     private String recognizeVoice(String data) {
         try(SpeechClient speechClient = SpeechClient.create()) {
             RecognitionConfig config = RecognitionConfig.newBuilder()
@@ -148,14 +159,35 @@ public class Session {
             RecognizeResponse response = speechClient.recognize(config, audio);
             List<SpeechRecognitionResult> results = response.getResultsList();
 
+            // 신뢰도(Confidence)를 측정합니다.
+            float totalConfidence = 0.0f;
+            int confidenceCount = 0;
             StringBuilder script = new StringBuilder();
             for(SpeechRecognitionResult result : results) {
                 SpeechRecognitionAlternative alternative = result.getAlternativesList().get(0);
+
+                totalConfidence += alternative.getConfidence();
+                confidenceCount++;
 
                 if(script.length() > 0)
                     script.append(' ');
                 script.append(alternative.getTranscript());
             }
+
+            // 평균 신뢰도와 측정된 텍스트를 JSON 형태로 기록합니다.
+            float avgConfidence = totalConfidence / (float) confidenceCount;
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode obj = mapper.createObjectNode();
+            obj.put("confidence", avgConfidence);
+            obj.put("text", script.toString());
+            mapper.writeValue(new FileOutputStream(savePath + "/" + room.getId() + "/" + getId() + "/" + fileCount + ".json"), obj);
+
+            FileOutputStream os = new FileOutputStream(savePath + "/" + room.getId() + "/" + getId() + "/" + fileCount + ".wav");
+            os.write(data.getBytes());
+            os.close();
+
+            // JSON 파일을 경로로 내보내기 합니다.
+            fileCount++;
 
             return script.toString();
         } catch (IOException e) {
