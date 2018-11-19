@@ -12,9 +12,14 @@ import org.springframework.web.socket.server.standard.ServletServerContainerFact
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
 
+    @Bean
+    public SocketHandler socketHandler() {
+        return new SocketHandler();
+    }
+
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new SocketHandler(), "/study")
+        registry.addHandler(socketHandler(), "/study")
                 .setAllowedOrigins("*")
                 .withSockJS();
     }

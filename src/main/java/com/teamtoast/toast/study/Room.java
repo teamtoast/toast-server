@@ -1,49 +1,231 @@
 package com.teamtoast.toast.study;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.teamtoast.toast.SocketHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.WebSocketSession;
 
+import javax.persistence.*;
+import java.util.Date;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Room {
 
-    private int id;
+    private SocketHandler handler;
+    private long id;
     private int connectCount = 0;
-    private CopyOnWriteArrayList<Session> sessions = new CopyOnWriteArrayList<>();
+    private long host;
+    private CopyOnWriteArrayList<Member> members = new CopyOnWriteArrayList<>();
 
-    public Room(int id) {
+    public Room(SocketHandler handler, long id) {
+        this.handler = handler;
         this.id = id;
     }
 
-    public Session join(WebSocketSession ws) {
-        Session session = new Session(connectCount++, ws);
-        session.sendInfo();
-        session.setRoom(this);
-        sessions.add(session);
+    public Member join(Session session) {
+        Member member = new Member(session);
+        member.sendInfo(createInfo());
+        member.setRoom(this);
+        members.add(member);
 
-        for(Session sess : sessions) {
-            sess.welcome(session);
+        for(Member sess : members) {
+            sess.welcome(member);
         }
 
-        return session;
+        return member;
     }
 
-    public void leave(Session session) {
-        sessions.remove(session);
+    public void leave(Member member) {
+        members.remove(member);
 
-        for(Session sess : sessions) {
-            sess.noticeLeave(session);
+        for(Member sess : members) {
+            sess.noticeLeave(member);
         }
     }
 
-    public Session getSessionById(int id) {
-        for(Session sess : sessions) {
-            if(sess.getId() == id)
+    public void start() {
+        for(Member member : members) {
+            member.noticeStart();
+        }
+    }
+
+    public Member getSessionByUserId(long id) {
+        for(Member sess : members) {
+            if(sess.getUserId() == id)
                 return sess;
         }
         return null;
     }
 
-    public Session[] getSessions() {
-        return sessions.toArray(new Session[0]);
+    public Member[] getMembers() {
+        return members.toArray(new Member[0]);
+    }
+
+    public long getHost() {
+        return host;
+    }
+
+    public void setHost(long host) {
+        this.host = host;
+    }
+
+    public Info createInfo() {
+        Data data = handler.getRoomData(id).get();
+        Info info = new Info();
+        info.setId(id);
+        info.setTitle(info.getTitle());
+
+        long[] memberIds = new long[members.size()];
+        for(int i = 0; i < memberIds.length; i++) {
+            memberIds[i] = members.get(i).getUserId();
+        }
+        info.setUsers(memberIds);
+        info.setMaxUsers(info.maxUsers);
+        info.setStudyMinutes(info.studyMinutes);
+        info.setMinLevel(info.minLevel);
+
+        return info;
+    }
+
+    @Entity
+    @Table(name = "studyrooms")
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Data {
+
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @Column(updatable = false, insertable = false)
+        private long id;
+        private String title;
+        private int maxUsers;
+        private int studyMinutes;
+        private int minLevel;
+        @Column(insertable = false, updatable = false)
+        private Date createdAt;
+        private Date startedAt;
+        private Date endedAt;
+
+        public long getId() {
+            return id;
+        }
+
+        public void setId(long id) {
+            this.id = id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public int getMaxUsers() {
+            return maxUsers;
+        }
+
+        public void setMaxUsers(int maxUsers) {
+            this.maxUsers = maxUsers;
+        }
+
+        public int getStudyMinutes() {
+            return studyMinutes;
+        }
+
+        public void setStudyMinutes(int studyMinutes) {
+            this.studyMinutes = studyMinutes;
+        }
+
+        public int getMinLevel() {
+            return minLevel;
+        }
+
+        public void setMinLevel(int minLevel) {
+            this.minLevel = minLevel;
+        }
+
+        public Date getCreatedAt() {
+            return createdAt;
+        }
+
+        public void setCreatedAt(Date createdAt) {
+            this.createdAt = createdAt;
+        }
+
+        public Date getStartedAt() {
+            return startedAt;
+        }
+
+        public void setStartedAt(Date startedAt) {
+            this.startedAt = startedAt;
+        }
+
+        public Date getEndedAt() {
+            return endedAt;
+        }
+
+        public void setEndedAt(Date endedAt) {
+            this.endedAt = endedAt;
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Info {
+
+        private long id;
+        private String title;
+        private long[] users;
+        private int maxUsers;
+        private int studyMinutes;
+        private int minLevel;
+
+        public long getId() {
+            return id;
+        }
+
+        public void setId(long id) {
+            this.id = id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public long[] getUsers() {
+            return users;
+        }
+
+        public void setUsers(long[] users) {
+            this.users = users;
+        }
+
+        public int getMaxUsers() {
+            return maxUsers;
+        }
+
+        public void setMaxUsers(int maxUsers) {
+            this.maxUsers = maxUsers;
+        }
+
+        public int getStudyMinutes() {
+            return studyMinutes;
+        }
+
+        public void setStudyMinutes(int studyMinutes) {
+            this.studyMinutes = studyMinutes;
+        }
+
+        public int getMinLevel() {
+            return minLevel;
+        }
+
+        public void setMinLevel(int minLevel) {
+            this.minLevel = minLevel;
+        }
     }
 }
