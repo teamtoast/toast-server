@@ -53,6 +53,11 @@ public class UserController {
         return new TokenResponse(tokenService.newToken(id, info.type));
     }
 
+    @GetMapping(value = "/users/{id}", produces = "application/json")
+    public @ResponseBody User getMe(@PathVariable("id") long id) {
+        return userService.getUser(id);
+    }
+
     @GetMapping(value = "/me", produces = "application/json")
     public @ResponseBody User getMe(@RequestHeader("Authorization") String authorization) throws AuthenticationException {
         if(authorization != null) {

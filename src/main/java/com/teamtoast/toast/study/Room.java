@@ -1,6 +1,9 @@
 package com.teamtoast.toast.study;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.teamtoast.toast.SocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.WebSocketSession;
@@ -43,15 +46,42 @@ public class Room {
         }
     }
 
+    public void sendReadyStates() {
+        synchronized (this) {
+            ObjectMapper mapper = new ObjectMapper();
+            ArrayNode root = mapper.createArrayNode();
+
+            for(Member m : members) {
+                ObjectNode node = mapper.createObjectNode();
+                node.put("id", m.getUserId());
+                node.put("ready", m.isReady());
+                root.add(node);
+            }
+
+            for(Member m : members) {
+                m.sendReadyStates(root);
+            }
+        }
+    }
+
     public void start() {
-        for(Member member : members) {
-            member.noticeStart();
+        synchronized (this) {
+            boolean ready = true;
+            for (Member member : members) {
+                ready = ready && member.isReady();
+            }
+
+            if(ready) {
+                for (Member member : members) {
+                    member.noticeStart();
+                }
+            }
         }
     }
 
     public Member getSessionByUserId(long id) {
-        for(Member sess : members) {
-            if(sess.getUserId() == id)
+        for (Member sess : members) {
+            if (sess.getUserId() == id)
                 return sess;
         }
         return null;
@@ -73,16 +103,17 @@ public class Room {
         Data data = handler.getRoomData(id).get();
         Info info = new Info();
         info.setId(id);
-        info.setTitle(info.getTitle());
+        info.setCategory(data.getCategory());
+        info.setTitle(data.getTitle());
 
         long[] memberIds = new long[members.size()];
         for(int i = 0; i < memberIds.length; i++) {
             memberIds[i] = members.get(i).getUserId();
         }
         info.setUsers(memberIds);
-        info.setMaxUsers(info.maxUsers);
-        info.setStudyMinutes(info.studyMinutes);
-        info.setMinLevel(info.minLevel);
+        info.setMaxUsers(data.maxUsers);
+        info.setStudyMinutes(data.studyMinutes);
+        info.setMinLevel(data.minLevel);
 
         return info;
     }
@@ -96,6 +127,7 @@ public class Room {
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(updatable = false, insertable = false)
         private long id;
+        private int category;
         private String title;
         private int maxUsers;
         private int studyMinutes;
@@ -111,6 +143,14 @@ public class Room {
 
         public void setId(long id) {
             this.id = id;
+        }
+
+        public int getCategory() {
+            return category;
+        }
+
+        public void setCategory(int category) {
+            this.category = category;
         }
 
         public String getTitle() {
@@ -174,6 +214,7 @@ public class Room {
     public static class Info {
 
         private long id;
+        private int category;
         private String title;
         private long[] users;
         private int maxUsers;
@@ -186,6 +227,14 @@ public class Room {
 
         public void setId(long id) {
             this.id = id;
+        }
+
+        public int getCategory() {
+            return category;
+        }
+
+        public void setCategory(int category) {
+            this.category = category;
         }
 
         public String getTitle() {

@@ -56,9 +56,10 @@ public class Session {
     public void onMessage(String cmd, JsonNode data) {
         switch (cmd) {
             case "create":
-                member = socketHandler.createRoom(data.get("title").asText(),
+                member = socketHandler.createRoom(data.get("category").asInt(), data.get("title").asText(),
                         data.get("maxUsers").asInt(), data.get("studyMinutes").asInt(),
                         data.get("minLevel").asInt()).join(this);
+                member.getRoom().setHost(userId);
                 break;
 
             case "join":

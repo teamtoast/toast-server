@@ -17,6 +17,8 @@ public class Member {
 
     private Room room;
     private Session session;
+    private boolean ready = false;
+    private boolean streamLoaded = false;
 
     public Member(Session session) {
         this.session = session;
@@ -54,15 +56,17 @@ public class Member {
     }
 
     public void welcome(Member target) {
-        ObjectNode node = new ObjectMapper().getNodeFactory().objectNode();
-        node.put("email", target.session.getUserId());
-        session.send("join", node);
+        session.send("join", target.session.getUserId());
     }
 
     public void noticeLeave(Member target) {
         ObjectNode node = new ObjectMapper().getNodeFactory().objectNode();
-        node.put("email", target.session.getUserId());
+        node.put("id", target.session.getUserId());
         session.send("leave", node);
+    }
+
+    public void sendReadyStates(JsonNode node) {
+        session.send("ready", node);
     }
 
     public Room getRoom() {
@@ -74,9 +78,7 @@ public class Member {
     }
 
     public void sendInfo(Room.Info info) {
-        ObjectNode node = new ObjectMapper().createObjectNode();
-        node.put("id", session.getUserId());
-        session.send("info", node);
+        session.send("info", info);
     }
 
     public void noticeStart() {
@@ -85,8 +87,25 @@ public class Member {
 
     public void onMessage(String cmd, JsonNode data) {
         switch (cmd) {
+            case "ready":
+                toggleReady();
+                room.sendReadyStates();
+                break;
+
             case "start":
-                start();
+                if(room.getHost() == getUserId())
+                    start();
+                break;
+
+            case "stream":
+                synchronized (room) {
+                    for(Member member : room.getMembers()) {
+                        if(member.streamLoaded) {
+                            member.session.send("stream", getUserId());
+                        }
+                    }
+                    streamLoaded = true;
+                }
                 break;
 
             case "offer":
@@ -186,5 +205,13 @@ public class Member {
         }
 
         return "";
+    }
+
+    public void toggleReady() {
+        ready = !ready;
+    }
+
+    public boolean isReady() {
+        return ready;
     }
 }

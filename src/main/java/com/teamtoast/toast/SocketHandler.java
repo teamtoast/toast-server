@@ -91,9 +91,10 @@ public class SocketHandler extends TextWebSocketHandler {
         }
     }
 
-    public Room createRoom(String title, int maxUsers, int studyMinutes, int minLevel) {
+    public Room createRoom(int category, String title, int maxUsers, int studyMinutes, int minLevel) {
         synchronized (this) {
             Room.Data data = new Room.Data();
+            data.setCategory(category);
             data.setTitle(title);
             data.setMaxUsers(maxUsers);
             data.setStudyMinutes(studyMinutes);
@@ -109,6 +110,28 @@ public class SocketHandler extends TextWebSocketHandler {
 
     public Room getRoom(long id) {
         return rooms.get(id);
+    }
+
+    public Room.Info[] getRoomInfos() {
+        ArrayList<Room.Info> infos = new ArrayList<>();
+        synchronized (this) {
+            for (Room room : rooms.values()) {
+                infos.add(room.createInfo());
+            }
+        }
+
+        return infos.toArray(new Room.Info[0]);
+    }
+
+    public Room.Info[] getRoomInfos(int category) {
+        ArrayList<Room.Info> infos = new ArrayList<>();
+        synchronized (this) {
+            for (Room room : rooms.values()) {
+                infos.add(room.createInfo());
+            }
+        }
+
+        return infos.toArray(new Room.Info[0]);
     }
 
     public Optional<Room.Data> getRoomData(long id) {
