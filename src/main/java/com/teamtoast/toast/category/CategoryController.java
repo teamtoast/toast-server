@@ -5,9 +5,12 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 @RestController
@@ -18,10 +21,21 @@ public class CategoryController {
     @Autowired
     private CategoryKeywordRepository keywordRepository;
 
+    @Autowired
+    private JdbcTemplate jdbc;
+
+    // ModelAttribute 설정으로 생성자 없이 진행
+    @ModelAttribute("categoryParent")
+    public CategoryParent getCategoryParent() {
+        return new CategoryParent();
+    }
+
+    // CategoryParent 객체 리스트로 반환 (일단 JPA 안 쓰고 Query 하드코딩)
     @GetMapping("/categories")
     @ApiOperation("카테고리 목록")
-    public Category[] categories() {
-        return Iterables.toArray(repository.findAll(), Category.class);
+    public List<CategoryParent> categories() {
+        String query = "SELECT C.categoryId, C.categoryParent, C.categoryName, P.categoryName as parentName, C.categoryImage FROM categories as C, categories as P WHERE C.categoryParent = P.categoryId AND C.categoryParent IS NOT NULL";
+        return jdbc.query(query, new BeanPropertyRowMapper<>(CategoryParent.class));
     }
 
     @RequestMapping(value = "/categories/{categoryID}", method = RequestMethod.GET)
@@ -29,8 +43,11 @@ public class CategoryController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "categoryID", value = "카테고리 기본키", required = true, dataType = "string", paramType = "path", defaultValue = "")
     })
-    public Category category(@PathVariable int categoryID) {
-        return repository.findById(categoryID).get();
+    public CategoryParent category(@PathVariable int categoryID) {
+        String query = "SELECT C.categoryId, C.categoryParent, C.categoryName, P.categoryName as parentName, C.categoryImage FROM categories as C, categories as P WHERE C.categoryParent = P.categoryId AND C.categoryParent IS NOT NULL AND C.categoryId = " + categoryID;
+        List<CategoryParent> list = jdbc.query(query, new BeanPropertyRowMapper<>(CategoryParent.class));
+        if(list == null || list.size() == 0) return null;
+        else return list.get(0);
     }
 
     @RequestMapping(value = "/categories/{categoryId}/keywords", method = RequestMethod.GET)
