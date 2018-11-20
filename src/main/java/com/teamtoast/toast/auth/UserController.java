@@ -2,10 +2,7 @@ package com.teamtoast.toast.auth;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.teamtoast.toast.auth.bodys.CreateUserBySNSRequest;
-import com.teamtoast.toast.auth.bodys.CreateUserRequest;
-import com.teamtoast.toast.auth.bodys.LoginRequest;
-import com.teamtoast.toast.auth.bodys.TokenResponse;
+import com.teamtoast.toast.auth.bodys.*;
 import com.teamtoast.toast.auth.exceptions.AuthenticationException;
 import com.teamtoast.toast.auth.exceptions.ConflictException;
 import com.teamtoast.toast.auth.exceptions.PlatformException;
@@ -56,10 +53,18 @@ public class UserController {
         return new TokenResponse(tokenService.newToken(id, info.type));
     }
 
+    @GetMapping(value = "/users/{id}", produces = "application/json")
+    public @ResponseBody User getMe(@PathVariable("id") long id) {
+        return userService.getUser(id);
+    }
+
     @GetMapping(value = "/me", produces = "application/json")
     public @ResponseBody User getMe(@RequestHeader("Authorization") String authorization) throws AuthenticationException {
-        if(authorization != null && authorization.length() > 7 && authorization.substring(0, 7).equals("Bearer ")) {
-            
+        if(authorization != null) {
+            String[] splited = authorization.split("Bearer ");
+            if(splited.length > 1) {
+                return tokenService.verifyToken(splited[1]);
+            }
         }
 
         throw new AuthenticationException();
@@ -71,6 +76,16 @@ public class UserController {
                 userService.getUserByIdAndPassword(
                         params.getEmail(),
                         params.getPassword()),
+                User.AccountType.TOAST));
+    }
+
+    @PostMapping(value = "/token/sns", produces = "application/json")
+    public @ResponseBody TokenResponse createToken(@RequestBody SNSLoginRequest params) throws AuthenticationException, PlatformException {
+
+        String id = getFacebookId(params.getToken());
+
+        return new TokenResponse(tokenService.newToken(
+                userService.getUserBySNSIdAndSNSType(id, params.getType()).getId(),
                 User.AccountType.TOAST));
     }
 
@@ -107,14 +122,14 @@ public class UserController {
         try {
             OkHttpClient client = new OkHttpClient();
             Request request = new Request.Builder()
-                    .url("https://graph.facebook.com/me?fields=email,email,gender,birthday,age_range&access_token=" + token)
+                    .url("https://graph.facebook.com/me?fields=id&access_token=" + token)
                     .get()
                     .build();
             Response response = client.newCall(request).execute();
             String body = response.body().string();
             System.out.println(body);
             JsonNode root = new ObjectMapper().readTree(body);
-            return root.get("email").asText();
+            return root.get("id").asText();
         } catch (IOException e) {
             e.printStackTrace();
             throw new PlatformException();

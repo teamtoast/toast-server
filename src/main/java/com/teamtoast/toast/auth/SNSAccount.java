@@ -7,7 +7,7 @@ import javax.persistence.*;
 public class SNSAccount {
 
     @Id
-    private long user;
+    private long id;
     @Column(name = "sns_id")
     private String snsId;
     @Column(name = "sns_type")
@@ -17,18 +17,18 @@ public class SNSAccount {
     public SNSAccount() {
     }
 
-    public SNSAccount(long user, String snsId, User.AccountType snsType) {
-        this.user = user;
+    public SNSAccount(long id, String snsId, User.AccountType snsType) {
+        this.id = id;
         this.snsId = snsId;
         this.snsType = snsType;
     }
 
-    public long getUser() {
-        return user;
+    public long getId() {
+        return id;
     }
 
-    public void setUser(long user) {
-        this.user = user;
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getSNSId() {
