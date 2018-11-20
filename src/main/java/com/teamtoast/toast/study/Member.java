@@ -62,9 +62,7 @@ public class Member {
     }
 
     public void noticeLeave(Member target) {
-        ObjectNode node = new ObjectMapper().getNodeFactory().objectNode();
-        node.put("id", target.session.getUserId());
-        session.send("leave", node);
+        session.send("leave", target.getUserId());
     }
 
     public void sendReadyStates(JsonNode node) {
