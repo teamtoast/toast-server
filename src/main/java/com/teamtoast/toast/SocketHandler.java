@@ -20,6 +20,8 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -123,7 +125,7 @@ public class SocketHandler extends TextWebSocketHandler {
         synchronized (this) {
             rooms.remove(room.getId());
 
-            roomRepository.setEndedAt(room.getId(), Date.from(Instant.now()));
+            roomRepository.setEndedAtNow(room.getId());
         }
     }
 

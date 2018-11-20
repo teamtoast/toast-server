@@ -8,7 +8,7 @@ import java.util.Date;
 
 public interface RoomRepository extends CrudRepository<Room.Data, Long> {
 
-    @Query(value = "UPDATE studyrooms SET ended_at=?2 WHERE id=?1", nativeQuery = true)
-    void setEndedAt(long id, Date date);
+    @Query(value = "UPDATE studyrooms SET endedAt=CURRENT_TIMESTAMP() WHERE id=?1", nativeQuery = true)
+    void setEndedAtNow(long id);
 
 }

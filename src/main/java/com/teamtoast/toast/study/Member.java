@@ -120,8 +120,6 @@ public class Member {
 
             case "candidate":
                 Member candidateTarget = room.getSessionByUserId(data.get("target").asLong());
-                if(candidateTarget == null)
-                    System.out.println("ana");
                 sendCandidate(candidateTarget, data.get("data"));
                 break;
 
