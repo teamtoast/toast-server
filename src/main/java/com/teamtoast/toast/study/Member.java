@@ -62,9 +62,7 @@ public class Member {
     }
 
     public void noticeLeave(Member target) {
-        ObjectNode node = new ObjectMapper().getNodeFactory().objectNode();
-        node.put("id", target.session.getUserId());
-        session.send("leave", node);
+        session.send("leave", target.getUserId());
     }
 
     public void sendReadyStates(JsonNode node) {
@@ -122,8 +120,6 @@ public class Member {
 
             case "candidate":
                 Member candidateTarget = room.getSessionByUserId(data.get("target").asLong());
-                if(candidateTarget == null)
-                    System.out.println("ana");
                 sendCandidate(candidateTarget, data.get("data"));
                 break;
 

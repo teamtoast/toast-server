@@ -16,7 +16,6 @@ public class Room {
 
     private SocketHandler handler;
     private long id;
-    private int connectCount = 0;
     private long host;
     private CopyOnWriteArrayList<Member> members = new CopyOnWriteArrayList<>();
 
@@ -39,10 +38,16 @@ public class Room {
     }
 
     public void leave(Member member) {
-        members.remove(member);
+        synchronized (this) {
+            members.remove(member);
 
-        for(Member sess : members) {
-            sess.noticeLeave(member);
+            for (Member sess : members) {
+                sess.noticeLeave(member);
+            }
+
+            if(members.size() == 0) {
+                handler.destroyRoom(this);
+            }
         }
     }
 

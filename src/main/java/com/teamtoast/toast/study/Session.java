@@ -67,6 +67,14 @@ public class Session {
                 member = socketHandler.getRoom(data.asLong()).join(this);
                 break;
 
+            case "leave":
+                try {
+                    session.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+
             default:
                 if(member != null)
                     member.onMessage(cmd, data);
@@ -74,7 +82,18 @@ public class Session {
     }
 
     public void onClose() {
+        if(member != null) {
+            member.getRoom().leave(member);
+        }
+        member = null;
+    }
 
+    public void close() {
+        try {
+            session.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public SocketHandler getSocketHandler() {

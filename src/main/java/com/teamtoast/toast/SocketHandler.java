@@ -19,7 +19,11 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,6 +44,7 @@ public class SocketHandler extends TextWebSocketHandler {
     private ArrayList<WebSocketSession> sessions = new ArrayList<>();
     private HashMap<Long, Room> rooms = new HashMap<>();
     private HashMap<String, Session> sessionMap = new HashMap<>();
+    private HashMap<Long, Session> userSessionMap = new HashMap<>();
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
@@ -50,7 +55,15 @@ public class SocketHandler extends TextWebSocketHandler {
             if(splited.length > 1) {
                 try {
                     User user = tokenService.verifyToken(splited[1]);
-                    sessionMap.put(session.getId(), new Session(this, user.getId(), session));
+                    Session sess = new Session(this, user.getId(), session);
+
+                    if(userSessionMap.containsKey(user.getId())) {
+                        Session existSession = userSessionMap.get(user.getId());
+                        existSession.close();
+                    }
+
+                    sessionMap.put(session.getId(), sess);
+                    userSessionMap.put(user.getId(), sess);
                 }
                 catch (SignatureVerificationException e) {
                     session.close();
@@ -85,13 +98,9 @@ public class SocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         synchronized (this) {
             sessionMap.get(session.getId()).onClose();
-            /*Member roomMember = sessionMap.get(session.getId());
-            if(roomMember != null) {
-                Room room = roomMember.getRoom();
-                if(room != null) room.leave(roomMember);
-            }*/
 
             sessions.remove(session);
+            sessionMap.remove(session.getId());
         }
     }
 
@@ -109,6 +118,14 @@ public class SocketHandler extends TextWebSocketHandler {
             rooms.put(data.getId(), room);
 
             return room;
+        }
+    }
+
+    public void destroyRoom(Room room) {
+        synchronized (this) {
+            rooms.remove(room.getId());
+
+            roomRepository.setEndedAtNow(room.getId());
         }
     }
 
