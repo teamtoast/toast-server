@@ -223,7 +223,7 @@ public class Member {
 
         try(SessionsClient sessionsClient = SessionsClient.create()) {
             SessionName sessionName = SessionName.of("voicetest-213510", "testsession");
-            TextInput.Builder textInput = TextInput.newBuilder().setText(script).setLanguageCode("en-US");
+            TextInput.Builder textInput = TextInput.newBuilder().setText(script).setLanguageCode("en");
             QueryInput queryInput = QueryInput.newBuilder().setText(textInput).build();
 
             DetectIntentResponse response = sessionsClient.detectIntent(sessionName, queryInput);
