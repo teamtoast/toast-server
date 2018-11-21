@@ -26,7 +26,7 @@ public class SpeechFeedbackController {
     private String speechPath;
 
     @ApiOperation(value = "특정 대화방에서의 모든 피드백", notes = ".json과 오디오 파일만 존재하는 폴더를 지정하여 전체 피드백을 제시합니다. 예를 들어 'C:\\Toast Sample Data' 경로에 3개의 음성 파일과 3개의 음성 인식 json 파일이 있으면 알아서 이에 대한 피드백을 제공합니다.")
-    @RequestMapping(value = "/feedback/getAllFeedback/{roomId}/{userId}", produces = {"application/json"}, method = RequestMethod.POST)
+    @GetMapping(value = "/feedback/getAllFeedback/{roomId}/{userId}", produces = {"application/json"})
     public String getAllFeedback(@PathVariable long roomId, @PathVariable long userId) {
         String path = speechPath + "/" + roomId + "/" + userId;
         ArrayList<String> getAllPath = getAllFiles(path);
