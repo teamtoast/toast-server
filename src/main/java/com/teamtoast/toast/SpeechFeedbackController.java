@@ -185,7 +185,7 @@ public class SpeechFeedbackController {
             res = "Good";
         }
         else if(input >= 70) {
-            res = "intermediate";
+            res = "Intermediate";
         }
         return res;
     }
