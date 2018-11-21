@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,11 +22,13 @@ import java.util.ArrayList;
 @RestController
 public class SpeechFeedbackController {
 
-    private String filePath = "C:/my upload/"; // 사용자의 음성 파일이 업로드 되는 곳 (테스트용)
+    @Value("${speech-data-path}")
+    private String speechPath;
 
     @ApiOperation(value = "특정 대화방에서의 모든 피드백", notes = ".json과 오디오 파일만 존재하는 폴더를 지정하여 전체 피드백을 제시합니다. 예를 들어 'C:\\Toast Sample Data' 경로에 3개의 음성 파일과 3개의 음성 인식 json 파일이 있으면 알아서 이에 대한 피드백을 제공합니다.")
-    @RequestMapping(value = "/feedback/getAllFeedback", produces = {"application/json"}, method = RequestMethod.POST)
-    public String getAllFeedback(@RequestBody String path) {
+    @RequestMapping(value = "/feedback/getAllFeedback/{roomId}/{userId}", produces = {"application/json"}, method = RequestMethod.POST)
+    public String getAllFeedback(@PathVariable long roomId, @PathVariable long userId) {
+        String path = speechPath + "/" + roomId + "/" + userId;
         ArrayList<String> getAllPath = getAllFiles(path);
         for(int i = 0; i < getAllPath.size(); i++) {
             getAllPath.set(i, path + "/" + getAllPath.get(i)); // Full Path로 저장
@@ -258,22 +261,6 @@ public class SpeechFeedbackController {
         return getSpeechFeedback(text, file);
     }
     */
-
-    public String getSpeechFeedback(String text, MultipartFile file) {
-        String ret = "";
-        try {
-            String fileName = file.getOriginalFilename();
-            File convFile = new File(filePath + fileName);
-            convFile.createNewFile();
-            FileOutputStream fos = new FileOutputStream(convFile);
-            fos.write(file.getBytes());
-            fos.close();
-            ret = getFeedbackFromFile(text, fileName);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return ret;
-    }
 
     public String getAPIResult(String text, String path) {
         String res = "";
