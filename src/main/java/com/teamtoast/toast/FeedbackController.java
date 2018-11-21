@@ -19,7 +19,7 @@ public class FeedbackController {
     }
 
     public String getGrammerFeedback(String text) {
-        String key = "RKhYv19FfAsM0oZN"; // 테스트용 무료 API Key
+        String key = "GcrVXxsPU3ZEXEXH"; // 테스트용 무료 API Key
         String result = "";
         try {
             OkHttpClient client = new OkHttpClient();
